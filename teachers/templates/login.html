@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <div class="login-container">
+        <div class="login-box">
+            <h1 class="logo">tailwebs.</h1>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <div class="input-container">
+                    <span class="input-ic">
+                        <img src="{% static 'images/user.png' %}" alt="User">
+                    </span>
+                    </div>
+                    <input type="text" name="username" required placeholder="Username">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="input-container">
+                        <span class="input-ic">
+                            <img src="{% static 'images/unlock.png' %}" alt="Lock">
+                        </span>
+                        <input type="password" name="password" id="password" required placeholder="Password">
+                        <span class="toggle-password" onclick="togglePasswordVisibility()">
+                            <img id="eye-icon" src="{% static 'images/hide.png' %}" alt="Toggle password visibility">
+                        </span>
+                    </div>
+                </div>
+                <button type="submit" class="login-btn">Login</button>
+                <div class="login-btn"><a href="{% url 'register_teacher' %}" class="reg-btn">Register</a></div>
+            </form> 
+        </div>
+    </div>
+
+
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.src = "{% static 'images/view.png' %}"; 
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.src = "{% static 'images/hide.png' %}"; 
+            }
+        }
+    </script>
+{% endblock %}

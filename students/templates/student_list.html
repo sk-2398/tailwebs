@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search by name or subject..." onkeyup="filterStudents()">
+</div>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Subject</th>
+        <th>Marks</th>
+        <th>Actions</th>
+    </tr>
+    {% for student in students %}
+    <tr class="student-row">
+        <td class="name-col"><div class="circle">{{ student.name|first }}</div>{{ student.name }}</td>
+        <td>{{ student.subject }}</td>
+        <td>{{ student.marks }}</td>
+        <td>
+            <div class="action-dropdown">
+                <img class="dropdown-toggle" onclick="toggleDropdown('{{ student.id }}')" src="{% static 'images/down-arrow.png' %}" alt="down-arrow" />
+                <div id="dropdown-{{ student.id }}" class="dropdown-content">
+                    <a href="#" onclick="openModal('edit', '{{ student.id }}', '{{ student.name }}', '{{ student.subject }}', {{ student.marks }})">Edit</a>
+                    <a href="{% url 'delete_student' student.id %}">Delete</a>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<button class="add-student-btn" onclick="openModal('add')">Add</button>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">Add Student</h2>
+        <form id="form" method="POST" action="{% url 'add_student' %}">
+            {% csrf_token %}
+            <div class="input-group">
+                <label for="name">Name:</label>
+                <div class="input-container">
+                    <span class="input-ic">
+                        <img src="{% static 'images/user.png' %}" alt="User">
+                    </span>
+                    <input type="text" name="name" id="studentName" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="subject">Subject:</label>
+                <div class="input-container">
+                    <span class="input-ic">
+                        <img src="{% static 'images/chat.png' %}" alt="User">
+                    </span>
+                    <input type="text" name="subject" id="studentSubject" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="marks">Marks:</label>
+                <div class="input-container">
+                    <span class="input-ic">
+                        <img src="{% static 'images/ribbon.png' %}" alt="User">
+                    </span>
+                    <input type="number" name="marks" id="studentMarks" required>
+                </div>
+            </div>
+            <button class="add-student-btn" style="margin: auto;" type="submit" id="modalSubmitBtn">Save</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function filterStudents() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const rows = document.getElementsByClassName("student-row");
+
+        for (let row of rows) {
+            const name = row.getElementsByClassName("name-col")[0].innerText.toLowerCase();
+            const subject = row.getElementsByTagName("td")[1].innerText.toLowerCase();
+            row.style.display = (name.includes(input) || subject.includes(input)) ? "" : "none";
+        }
+    }
+
+    function toggleDropdown(studentId) {
+        const dropdown = document.getElementById(`dropdown-${studentId}`);
+        const dropdowns = document.getElementsByClassName("dropdown-content");
+
+        for (let dd of dropdowns) {
+            if (dd !== dropdown) dd.style.display = 'none';
+        }
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropdown-toggle')) {
+            const dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let dd of dropdowns) dd.style.display = 'none';
+        }
+    }
+
+    function openModal(type, studentId = null, studentName = '', studentSubject = '', studentMarks = '') {
+        document.getElementById('studentName').value = studentName;
+        document.getElementById('studentSubject').value = studentSubject;
+        document.getElementById('studentMarks').value = studentMarks;
+
+        if (type === 'edit') {
+            document.getElementById('modalTitle').innerText = 'Edit Student';
+            document.getElementById('form').action = "{% url 'edit_student' 0 %}".replace('0', studentId);
+        } else {
+            document.getElementById('modalTitle').innerText = 'Add Student';
+            document.getElementById('form').action = "{% url 'add_student' %}";
+        }
+
+        document.getElementById('modal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+</script>
+
+{% endblock %}
