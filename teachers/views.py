@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib import messages
-
+from .models import *
 def register_teacher(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -14,6 +14,7 @@ def register_teacher(request):
             messages.error(request, "Username already exists.")
         else:
             user = User.objects.create_user(username=username, email=email, password=password)
+            Teacher.objects.create(user=user)
             messages.success(request, "Teacher registered successfully.")
             return redirect('login_teacher')
     return render(request, 'register.html')
